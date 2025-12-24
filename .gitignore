@@ -142,3 +142,13 @@ vite.config.ts.timestamp-*
 
 # IDE setting files
 .vscode/
+.idea/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# MSAL token cache
+.msal-cache.json
+token-cache.json

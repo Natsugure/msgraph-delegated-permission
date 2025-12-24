@@ -2,24 +2,15 @@ import { AccountInfo } from '@azure/msal-node';
 
 export interface TokenData {
   accessToken: string;
-  refreshToken: string;
+  refreshToken: string; // MSALでは使用しないが互換性のため保持
   expiresOn: Date;
   account: AccountInfo;
-}
-
-export interface Subscription {
-  id: string;
-  resource: string;
-  changeType: string;
-  notificationUrl: string;
-  expirationDateTime: string;
-  clientState: string;
 }
 
 export interface UserTokenData {
   userId: string;
   accessToken: string;
-  refreshToken: string;
+  refreshToken: string; // MSALでは使用しない
   expiresOn: Date;
   account: AccountInfo;
   subscriptions: SubscriptionData[];
@@ -29,6 +20,15 @@ export interface SubscriptionData {
   id: string;
   expirationDateTime: string;
   resource: string;
+}
+
+export interface Subscription {
+  id: string;
+  resource: string;
+  changeType: string;
+  notificationUrl: string;
+  expirationDateTime: string;
+  clientState: string;
 }
 
 export interface GraphNotification {
