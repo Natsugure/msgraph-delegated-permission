@@ -1,6 +1,6 @@
 import { Client } from '@microsoft/microsoft-graph-client';
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { Subscription } from './types';
+import { Subscription, EmailMessage } from './types';
 
 /**
  * Graph APIクライアントを取得
@@ -37,7 +37,7 @@ export async function createSubscription(
   const client = getGraphClient(accessToken);
   
   const subscription = {
-    changeType: 'created,updated',
+    changeType: 'created',
     notificationUrl: process.env.NOTIFICATION_URL,
     resource: '/me/mailFolders/inbox/messages',
     expirationDateTime: getExpirationDateTime(4230), // 最大4230分（約3日）
@@ -107,7 +107,7 @@ export async function createSubscriptionWithAxios(
   const axiosClient = createGraphAxiosClient(accessToken);
   
   const subscription = {
-    changeType: 'created,updated',
+    changeType: 'created',
     notificationUrl: process.env.NOTIFICATION_URL,
     resource: '/me/mailFolders/inbox/messages',
     expirationDateTime: getExpirationDateTime(4230),
@@ -169,14 +169,14 @@ function handleGraphError(operation: string, error: unknown): void {
 function handleAxiosError(operation: string, error: unknown): void {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError;
-    
+
     console.error(`${operation}エラー:`);
-    
+
     if (axiosError.response) {
       // サーバーがエラーレスポンスを返した
       console.error('ステータスコード:', axiosError.response.status);
       console.error('レスポンスデータ:', JSON.stringify(axiosError.response.data, null, 2));
-      
+
       // 特定のエラーコードに応じた処理
       switch (axiosError.response.status) {
         case 401:
@@ -204,4 +204,35 @@ function handleAxiosError(operation: string, error: unknown): void {
   } else {
     console.error(`${operation}で予期しないエラー:`, error);
   }
+}
+
+/**
+ * メールメッセージの詳細を取得
+ */
+export async function getEmailMessage(
+  accessToken: string,
+  messageId: string
+): Promise<EmailMessage> {
+  const client = getGraphClient(accessToken);
+
+  try {
+    const message = await client
+      .api(`/me/messages/${messageId}`)
+      .select('id,subject,bodyPreview,body,from,receivedDateTime,hasAttachments,webLink')
+      .get();
+
+    return message as EmailMessage;
+  } catch (error) {
+    handleGraphError('メールメッセージ取得', error);
+    throw error;
+  }
+}
+
+/**
+ * リソースURLからメッセージIDを抽出
+ * 例: "Users/xxx/Messages/yyy" -> "yyy"
+ */
+export function extractMessageIdFromResource(resource: string): string {
+  const parts = resource.split('/');
+  return parts[parts.length - 1];
 }

@@ -49,3 +49,37 @@ export interface GraphNotification {
 export interface NotificationPayload {
   value: GraphNotification[];
 }
+
+export interface EmailMessage {
+  id: string;
+  subject: string;
+  bodyPreview: string;
+  body: {
+    contentType: string;
+    content: string;
+  };
+  from: {
+    emailAddress: {
+      name: string;
+      address: string;
+    };
+  };
+  receivedDateTime: string;
+  hasAttachments: boolean;
+  webLink?: string;
+}
+
+export interface StoredEmailMessage {
+  id: string;
+  userId: string;
+  subscriptionId: string;
+  subject: string;
+  from: string;
+  fromAddress: string;
+  bodyPreview: string;
+  bodyContent: string;
+  receivedDateTime: string;
+  notificationReceived: string;
+  hasAttachments: boolean;
+  webLink?: string;
+}

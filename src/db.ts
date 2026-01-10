@@ -1,8 +1,9 @@
 import { AccountInfo } from '@azure/msal-node';
-import { TokenData, UserTokenData, SubscriptionData, Subscription } from './types';
+import { TokenData, UserTokenData, SubscriptionData, Subscription, StoredEmailMessage } from './types';
 
 // 簡易的なインメモリストレージ（本番環境ではPostgreSQL/MongoDBなどを使用）
 const users = new Map<string, UserTokenData>();
+const emailMessages = new Map<string, StoredEmailMessage>();
 
 /**
  * ユーザートークンクラス
@@ -111,4 +112,54 @@ export function getAllUsers(): UserTokenData[] {
  */
 export function deleteUser(userId: string): boolean {
   return users.delete(userId);
+}
+
+/**
+ * メールメッセージを保存
+ */
+export function saveEmailMessage(message: StoredEmailMessage): void {
+  emailMessages.set(message.id, message);
+  console.log(`メールメッセージ ${message.id} を保存しました (件名: ${message.subject})`);
+}
+
+/**
+ * メールメッセージを取得
+ */
+export function getEmailMessage(messageId: string): StoredEmailMessage | undefined {
+  return emailMessages.get(messageId);
+}
+
+/**
+ * 全メールメッセージを取得（新しい順）
+ */
+export function getAllEmailMessages(): StoredEmailMessage[] {
+  const messages = Array.from(emailMessages.values());
+  return messages.sort((a, b) =>
+    new Date(b.notificationReceived).getTime() - new Date(a.notificationReceived).getTime()
+  );
+}
+
+/**
+ * ユーザーIDでメールメッセージを取得（新しい順）
+ */
+export function getEmailMessagesByUserId(userId: string): StoredEmailMessage[] {
+  const messages = Array.from(emailMessages.values()).filter(msg => msg.userId === userId);
+  return messages.sort((a, b) =>
+    new Date(b.notificationReceived).getTime() - new Date(a.notificationReceived).getTime()
+  );
+}
+
+/**
+ * メールメッセージを削除
+ */
+export function deleteEmailMessage(messageId: string): boolean {
+  return emailMessages.delete(messageId);
+}
+
+/**
+ * 全メールメッセージを削除
+ */
+export function clearAllEmailMessages(): void {
+  emailMessages.clear();
+  console.log('全てのメールメッセージを削除しました');
 }
